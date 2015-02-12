@@ -7,7 +7,20 @@ This aims to solve that problem. Text is split into as large of chunks as possib
 
 ###Usage
 
-All functions are ```speaker.<function>()```
+####TLDR
+```
+speaker.text("Text to play!");
+speaker.settings({
+  rate: 1.5,
+  pitch: 0.8
+});
+speaker.play();
+speaker.pause();
+speaker.resume();
+speaker.stop();
+```
+
+####Full API
 
 * ```text(textToPlay)```: sets the text to be played. If you switch texts while one text is already playing, you'll need to wait until it finishes or stop and start it for the new text to take effect.
 * ```settings({rate: integer, voice: <an object from speechSynthesis.getVoices()>, volume: integer, pitch: integer})```: Settings will only take effect on the start of the next chunk (usually about a sentence).
@@ -22,7 +35,13 @@ All functions are ```speaker.<function>()```
 
 All functions return the API object to allow chaining, like:
 
-```speaker.text("Just what the hell do you think you're doing?").voice("Bruce","en-US").increaseRate().speak();```
+```
+speaker
+  .text("Just what the hell do you think you're doing?")
+  .voice("Bruce","en-US")
+  .increaseRate()
+  .speak();
+```
 
 ### License
 MIT

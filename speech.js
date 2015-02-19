@@ -8,7 +8,8 @@
     };
 
     API.text = function(str){
-        text = str;
+        if (!str) return text;
+        text = str.replace(/\n/g," ").trim();
         return API;
     }
 
@@ -32,32 +33,41 @@
     }
 
     API.speak =  function(){
-        var _text = text, chunk;
-
         var createNewChunkUtterance = function(){
-            var chunk = _text.match(/(^.{1,250}[!.?])|(^.{1,250})/g);
+            var chunk = _text.match(/(^.{1,300}[!.?])|(^.{1,300}\s)/g);
             if (!chunk) return null;
             chunk = chunk[0];
             _text = _text.substring(chunk.length);
-            utterance = new SpeechSynthesisUtterance(chunk);
+            utterance = new SpeechSynthesisUtterance();
+            utterance.text = chunk;
             utterance.voice = settings.voice;
             utterance.rate = settings.rate;
             utterance.pitch = settings.pitch;
             utterance.volume = settings.volume;
-            return utterance;
+            return true;
         }
 
         var play = function(){
-            speechSynthesis.cancel();
-            var utterance = createNewChunkUtterance();
-            if (!utterance) return;
-            speechSynthesis.speak(utterance);
+            if (utterance) API.stop();
+            if (!createNewChunkUtterance()) return API.stop();
+
             utterance.onend = function(){
+                console.log("END OF UTT");
                 play();
             };
+
+            //IMPORTANT!! Do not remove: Logging the object out fixes some onend firing issues.
+            console.log(utterance); 
+
+            //placing the speak invocation inside a callback fixes ordering and onend issues.
+            setTimeout(function () {
+                speechSynthesis.speak(utterance);
+            }, 0);
         }
 
-        if (speechSynthesis.speaking) API.stop();
+        var _text = text;
+
+        API.stop();
         play();
         return API;
     }
@@ -73,7 +83,10 @@
     }
 
     API.stop = function(){
-        utterance.onend = null;
+        if (utterance) {
+            utterance.onend = null;
+            utterance = null;
+        }
         speechSynthesis.cancel();
         return API;
     }
@@ -93,13 +106,14 @@
     }
 
     API.increaseRate = function(by){
-        var increaseBy = by || 0.5;
+        var increaseBy = by || 0.25;
         settings.rate += increaseBy;
+        console.log(settings.rate);
         return API;
     }
 
     API.decreaseRate = function(by){
-        var decreaseBy = by || 0.5;
+        var decreaseBy = by || 0.25;
         settings.rate -= decreaseBy;
         return API;
     }

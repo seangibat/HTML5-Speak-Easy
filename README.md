@@ -20,6 +20,16 @@ speaker.resume();
 speaker.stop();
 ```
 
+#NOTE
+
+It's important to realize that SpeechSynthesis API is not always available when the DOM is ready. If you're going to be changing the voice or playing some text when the page loads, you must add an event listener to ```window.speechSynthesis.onvoiceschanged``` like so:
+```
+window.speechSynthesis.onvoiceschanged = function(){
+  speaker.voice("Daniel"); // Daniel is the best voice.
+  speaker.play();
+};
+```
+
 ####Full API
 
 * ```text(textToPlay)```: sets the text to be played. If you switch texts while one text is already playing, you'll need to wait until it finishes or stop and start it for the new text to take effect.

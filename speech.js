@@ -1,6 +1,6 @@
 (function(){
     'use strict';
-    var text, utterance, API = {};
+    var text, utterance, API = {}, loaded = false;
     var settings = {
         rate: 1,
         volume: 1,
@@ -11,7 +11,7 @@
         if (!str) return text;
         text = str.replace(/\n/g," ").trim();
         return API;
-    }
+    };  
 
     API.settings = function(set){
         if (!set) return settings;
@@ -22,7 +22,7 @@
         settings.volume = set.volume || settings.volume;
 
         return API;
-    }
+    };
 
     API.defaultSettings = function(){
         settings = {
@@ -30,7 +30,7 @@
             volume: 1,
             pitch: 1
         };
-    }
+    };
 
     API.speak =  function(){
         var createNewChunkUtterance = function(){
@@ -45,16 +45,13 @@
             utterance.pitch = settings.pitch;
             utterance.volume = settings.volume;
             return true;
-        }
+        };
 
         var play = function(){
             if (utterance) API.stop();
             if (!createNewChunkUtterance()) return API.stop();
 
-            utterance.onend = function(){
-                console.log("END OF UTT");
-                play();
-            };
+            utterance.onend = play;
 
             //IMPORTANT!! Do not remove: Logging the object out fixes some onend firing issues.
             console.log(utterance); 
@@ -63,24 +60,24 @@
             setTimeout(function () {
                 speechSynthesis.speak(utterance);
             }, 0);
-        }
+        };
 
         var _text = text;
 
         API.stop();
         play();
         return API;
-    }
+    };
 
     API.pause = function(){
         speechSynthesis.pause();
         return API;
-    }
+    };
 
     API.resume = function(){
         speechSynthesis.resume();
         return API;
-    }
+    };
 
     API.stop = function(){
         if (utterance) {
@@ -89,26 +86,25 @@
         }
         speechSynthesis.cancel();
         return API;
-    }
+    };
 
     API.voice = function(name, lang){
         var v = speechSynthesis.getVoices().filter(function(voice) { 
-            return (voice.name.indexOf(name) >= 0) && (lang ? (voice.lang.indexOf(lang) >= 0) : true)
+            return (voice.name.toLowerCase().indexOf(name.toLowerCase()) >= 0) && (lang ? (voice.lang.indexOf(lang) >= 0) : true)
         })[0];
-        console.log(v);
+        console.log(v); 
         if (v) settings.voice = v;
         return API;
-    }
+    };
 
     API.pitch = function(n){
         settings.pitch = n;
         return API;
-    }
+    };
 
     API.increaseRate = function(by){
         var increaseBy = by || 0.25;
         settings.rate += increaseBy;
-        console.log(settings.rate);
         return API;
     }
 
@@ -116,7 +112,7 @@
         var decreaseBy = by || 0.25;
         settings.rate -= decreaseBy;
         return API;
-    }
+    };
 
     window.speaker = API;
 })();

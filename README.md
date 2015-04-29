@@ -20,7 +20,7 @@ speaker.resume();
 speaker.stop();
 ```
 
-#NOTE
+####Domready isn't enough
 
 It's important to realize that SpeechSynthesis API is not always available when the DOM is ready. If you're going to be changing the voice or playing some text when the page loads, you must add an event listener to ```window.speechSynthesis.onvoiceschanged``` like so:
 ```
